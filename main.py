@@ -4,10 +4,12 @@ import thread
 import time
 from VideoCapture import Device
 from datetime import datetime
+import os
 
 from PIL import ImageGrab
 from PIL import Image
 import pygame
+import cv2
 
 waitTime = 5
 choice = 0
@@ -21,7 +23,7 @@ def timestamp():
     adesso = datetime.now()
     datestring = ""
     datestring = datestring + str(adesso.year) + "_" + str(adesso.month) + "_" + str(adesso.day) + "-" + str(
-        adesso.hour) + ":" + str(adesso.minute) + ":" + str(adesso.second)
+        adesso.hour) + "-" + str(adesso.minute) + "-" + str(adesso.second)
     return datestring
 def input_thread(L):
     raw_input()
@@ -80,7 +82,8 @@ def do_both():
         combinedImage.paste(photo, (width, 0))
         # ImageGrab.grab().save("imgs/screen" + istr + ".png", "PNG")
         # cam.saveSnapshot("imgs/" + istr + ".png")
-        combinedImage.save("imgs/" + timestamp() + ".png")
+        combinedImage.save("imgs/" + istr + ".png")
+        # combinedImage.save("imgs/" + timestamp() + ".png")
         print "saved"
         if L:
             main()
@@ -102,8 +105,26 @@ def main():
         global waitTime
         waitTime = int(raw_input("Ogni quanto salvare la foto (default 10): "))
         main()
+
     elif choice == 5:
-        print "TODO"
+        img1 = cv2.imread('imgs/1.png')
+        alt, larg, layers = img1.shape
+        for immagine in os.listdir("imgs"):
+            if immagine.endswith(".png"):
+                print(immagine)
+                print "a"
+                # out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+                fourcc = cv2.VideoWriter_fourcc(*'XVID')
+                video = cv2.VideoWriter('video.avi', fourcc, 1, (larg, alt))
+                print "b"
+                video.write(immagine)
+
+                print "c"
+        cv2.destroyAllWindows()
+        print "d"
+        video.release()
+        print "e"
+
     elif choice == 0:
         print "Ciao! :D"
     else:
