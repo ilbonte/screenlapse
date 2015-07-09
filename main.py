@@ -112,12 +112,13 @@ def main():
         for immagine in os.listdir("imgs"):
             if immagine.endswith(".png"):
                 print(immagine)
+                foto = cv2.imread(str(immagine))
                 print "a"
                 # out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
                 fourcc = cv2.VideoWriter_fourcc(*'XVID')
                 video = cv2.VideoWriter('video.avi', fourcc, 1, (larg, alt))
                 print "b"
-                video.write(immagine)
+                video.write(foto)
 
                 print "c"
         cv2.destroyAllWindows()
