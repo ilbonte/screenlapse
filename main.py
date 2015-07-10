@@ -25,6 +25,8 @@ def timestamp():
     datestring = datestring + str(adesso.year) + "_" + str(adesso.month) + "_" + str(adesso.day) + "-" + str(
         adesso.hour) + "-" + str(adesso.minute) + "-" + str(adesso.second)
     return datestring
+
+
 def input_thread(L):
     raw_input()
     L.append(None)
@@ -39,7 +41,7 @@ def do_screen():
         i = i + 1
         istr = str(i)
         ImageGrab.grab().save("imgs/" + istr + ".png", "PNG")
-        print "saved"
+        print "saved" + istr
         if L:
             main()
             break
@@ -56,8 +58,7 @@ def do_cam():
         istr = str(i)
 
         cam.saveSnapshot("imgs/" + istr + ".png")
-
-        print "saved"
+        print "saved" + istr
         if L:
             main()
             break
@@ -80,15 +81,48 @@ def do_both():
         combinedImage.paste(ImageGrab.grab(), (0, 0))
         photo = cam.getImage(3, 1, "tl")
         combinedImage.paste(photo, (width, 0))
-        # ImageGrab.grab().save("imgs/screen" + istr + ".png", "PNG")
-        # cam.saveSnapshot("imgs/" + istr + ".png")
         combinedImage.save("imgs/" + istr + ".png")
         # combinedImage.save("imgs/" + timestamp() + ".png")
-        print "saved"
+        print "saved" + istr
         if L:
             main()
             break
 
+
+def do_movie():
+    fileName = ""
+    fps = 10
+    immagini = []
+    for immagine in os.listdir("imgs"):
+        if immagine.endswith(".png"):
+            fileName = immagine
+            immagini.append(int(fileName[:-4]))
+    immagini.sort()
+    nfoto = immagini[-1]  # l'ultimo elemento della lista
+    tempoStimato = nfoto / fps
+    print "Il video durera' circa" + str(tempoStimato) + " secondi"
+
+    scelta = int(
+        raw_input("Segli 0 per continuare con l'elaborazione, 1 per inserire una durata custom"))
+    if scelta == 1:
+        # TODO: inserire la durata minima consigliata (almeno 5 fps)
+        tempoScelto = int(raw_input("Inserisci la durata desiderata in SECONDI"))
+        fps = nfoto / tempoScelto
+    # TODO: sistemare questo scegliendo il tempo
+    img1 = cv2.imread('imgs/1.png')
+
+    alt, larg, layers = img1.shape
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    video = cv2.VideoWriter('video.avi', fourcc, fps, (larg, alt))
+
+    for foto in immagini:
+        att = "imgs/" + str(foto) + ".png"
+        fotoImg = cv2.imread(att)
+        video.write(fotoImg)
+
+    cv2.destroyAllWindows()
+    video.release()
 
 
 def main():
@@ -105,30 +139,12 @@ def main():
         global waitTime
         waitTime = int(raw_input("Ogni quanto salvare la foto (default 10): "))
         main()
-
     elif choice == 5:
-        img1 = cv2.imread('imgs/1.png')
-        alt, larg, layers = img1.shape
-        for immagine in os.listdir("imgs"):
-            if immagine.endswith(".png"):
-                print(immagine)
-                foto = cv2.imread(str(immagine))
-                print "a"
-                # out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
-                fourcc = cv2.VideoWriter_fourcc(*'XVID')
-                video = cv2.VideoWriter('video.avi', fourcc, 1, (larg, alt))
-                print "b"
-                video.write(foto)
-
-                print "c"
-        cv2.destroyAllWindows()
-        print "d"
-        video.release()
-        print "e"
-
+        do_movie()
     elif choice == 0:
         print "Ciao! :D"
     else:
         print "Opzione non valida"
+
 
 main()
