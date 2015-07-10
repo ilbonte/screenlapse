@@ -5,6 +5,7 @@ import time
 from VideoCapture import Device
 from datetime import datetime
 import os
+import sys
 
 from PIL import ImageGrab
 from PIL import Image
@@ -89,6 +90,10 @@ def do_both():
             break
 
 
+def update_progress(progress):
+    sys.stdout.write("\r%d%%" % progress)
+    sys.stdout.flush()
+
 def do_movie():
     fileName = ""
     fps = 10
@@ -103,13 +108,14 @@ def do_movie():
     print "Il video durera' circa" + str(tempoStimato) + " secondi"
 
     scelta = int(
-        raw_input("Segli 0 per continuare con l'elaborazione, 1 per inserire una durata custom"))
+        raw_input("Segli 0 per continuare con l'elaborazione, 1 per inserire una durata custom \n -> "))
     if scelta == 1:
         # TODO: inserire la durata minima consigliata (almeno 5 fps)
-        tempoScelto = int(raw_input("Inserisci la durata desiderata in SECONDI"))
+        tempoScelto = int(raw_input("Inserisci la durata desiderata in SECONDI \n -> "))
         fps = nfoto / tempoScelto
-    # TODO: sistemare questo scegliendo il tempo
-    img1 = cv2.imread('imgs/1.png')
+
+    att = "imgs/" + str(immagini[0]) + ".png"
+    img1 = cv2.imread(att)
 
     alt, larg, layers = img1.shape
 
@@ -118,8 +124,10 @@ def do_movie():
 
     for foto in immagini:
         att = "imgs/" + str(foto) + ".png"
+        perc = (100 * foto) / nfoto
         fotoImg = cv2.imread(att)
         video.write(fotoImg)
+        update_progress(perc)
 
     cv2.destroyAllWindows()
     video.release()
@@ -128,7 +136,7 @@ def do_movie():
 def main():
     choice = int(
         raw_input("Scegli cosa vuoi fare: \n 1 per fare solo screen\n 2 per fare foto \n 3 screen e foto combinati "
-                  "\n 4 per sttare l'intervallo di acquisizione \n 5 per generare il timelapse \n 0 per uscire"))
+                  "\n 4 per sttare l'intervallo di acquisizione \n 5 per generare il timelapse \n 0 per uscire\n -> "))
     if choice == 1:
         do_screen()
     elif choice == 2:
@@ -137,7 +145,7 @@ def main():
         do_both()
     elif choice == 4:
         global waitTime
-        waitTime = int(raw_input("Ogni quanto salvare la foto (default 10): "))
+        waitTime = int(raw_input("Ogni quanto salvare la foto (default 10) \n -> "))
         main()
     elif choice == 5:
         do_movie()
