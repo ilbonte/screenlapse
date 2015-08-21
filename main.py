@@ -9,6 +9,8 @@ import sys
 
 from PIL import ImageGrab
 from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 import pygame
 import cv2
 
@@ -72,8 +74,9 @@ def do_both():
 
     thread.start_new_thread(input_thread, (L,))
     photo = cam.getImage(3, 1, "tl")
-    photoWidth, phoroHeight = photo.size
+    photoWidth, photoHeight = photo.size
     combinedImage = Image.new("RGB", (width + photoWidth, height), color=0)
+    startTime = time.time()
     while 1:
         time.sleep(waitTime)
         i = i + 1
@@ -82,6 +85,17 @@ def do_both():
         combinedImage.paste(ImageGrab.grab(), (0, 0))
         photo = cam.getImage(3, 1, "tl")
         combinedImage.paste(photo, (width, 0))
+        draw = ImageDraw.Draw(combinedImage)
+        font = ImageFont.truetype("arialbd.ttf", 40)
+        draw.rectangle([(width, photoHeight), (width + photoWidth, photoHeight + height - photoHeight)], fill="black",
+                       outline="red")
+        draw.text((width + 10, photoHeight + 10), datetime.now().strftime("%A, %d. %B %Y %I:%M%p"), (255, 255, 255),
+                  font=font)
+        elapsed = time.time() - startTime
+        m, s = divmod(elapsed, 60)
+        h, m = divmod(m, 60)
+        formattedElapsed = "%d:%02d:%02d" % (h, m, s)
+        draw.text((width + 10, photoHeight + 60), formattedElapsed, (255, 255, 255), font=font)
         combinedImage.save("imgs/" + istr + ".png")
         # combinedImage.save("imgs/" + timestamp() + ".png")
         print "saved" + istr
