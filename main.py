@@ -2,17 +2,17 @@ __author__ = 'Bonte'
 
 import thread
 import time
-from VideoCapture import Device
+from VideoCapture import Device  # http://videocapture.sourceforge.net/
 from datetime import datetime
 import os
 import sys
 
-from PIL import ImageGrab
+from PIL import ImageGrab  #https://pillow.readthedocs.org/en/3.0.x/
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-import pygame
-import cv2
+import pygame  # http://pygame.org/
+import cv2  #http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html
 
 waitTime = 5
 choice = 0
@@ -23,10 +23,10 @@ height = pygame.display.Info().current_h
 
 
 def timestamp():
-    adesso = datetime.now()
+    now = datetime.now()
     datestring = ""
-    datestring = datestring + str(adesso.year) + "_" + str(adesso.month) + "_" + str(adesso.day) + "-" + str(
-        adesso.hour) + "-" + str(adesso.minute) + "-" + str(adesso.second)
+    datestring = datestring + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "-" + str(
+        now.hour) + "-" + str(now.minute) + "-" + str(now.second)
     return datestring
 
 
@@ -108,27 +108,28 @@ def update_progress(progress):
     sys.stdout.write("\r%d%%" % progress)
     sys.stdout.flush()
 
+
 def do_movie():
     fileName = ""
     fps = 10
-    immagini = []
+    pictures = []
     for immagine in os.listdir("imgs"):
         if immagine.endswith(".png"):
             fileName = immagine
-            immagini.append(int(fileName[:-4]))
-    immagini.sort()
-    nfoto = immagini[-1]  # l'ultimo elemento della lista
-    tempoStimato = nfoto / fps
-    print "Il video durera' circa" + str(tempoStimato) + " secondi"
+            pictures.append(int(fileName[:-4]))
+    pictures.sort()
+    picturesNumber = pictures[-1]  # last element
+    estimatedDuration = picturesNumber / fps
+    print "Estimated duration:" + str(estimatedDuration) + " seconds"
 
     scelta = int(
-        raw_input("Segli 0 per continuare con l'elaborazione, 1 per inserire una durata custom \n -> "))
+        raw_input("Choose 0 to continue, 1 if you want choose a custom duration \n -> "))
     if scelta == 1:
         # TODO: inserire la durata minima consigliata (almeno 5 fps)
-        tempoScelto = int(raw_input("Inserisci la durata desiderata in SECONDI \n -> "))
-        fps = nfoto / tempoScelto
+        customTime = int(raw_input("Insert desired duration in seconds \n -> "))
+        fps = picturesNumber / customTime
 
-    att = "imgs/" + str(immagini[0]) + ".png"
+    att = "imgs/" + str(pictures[0]) + ".png"
     img1 = cv2.imread(att)
 
     alt, larg, layers = img1.shape
@@ -136,9 +137,9 @@ def do_movie():
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     video = cv2.VideoWriter('video.avi', fourcc, fps, (larg, alt))
 
-    for foto in immagini:
+    for foto in pictures:
         att = "imgs/" + str(foto) + ".png"
-        perc = (100 * foto) / nfoto
+        perc = (100 * foto) / picturesNumber
         fotoImg = cv2.imread(att)
         video.write(fotoImg)
         update_progress(perc)
@@ -149,8 +150,9 @@ def do_movie():
 
 def main():
     choice = int(
-        raw_input("Scegli cosa vuoi fare: \n 1 per fare solo screen\n 2 per fare foto \n 3 screen e foto combinati "
-                  "\n 4 per sttare l'intervallo di acquisizione \n 5 per generare il timelapse \n 0 per uscire\n -> "))
+        raw_input(
+            "Choose what you want ti do: \n 1 screenshot only \n 2 webcam snapshot \n 3 screenshot and snapshot combined"
+            "\n 4 set capture interval (seconds) \n 5 generates timelapse (.avi) \n 0 exit\n -> "))
     if choice == 1:
         do_screen()
     elif choice == 2:
@@ -159,14 +161,14 @@ def main():
         do_both()
     elif choice == 4:
         global waitTime
-        waitTime = int(raw_input("Ogni quanto salvare la foto (default 10) \n -> "))
+        waitTime = int(raw_input("Capture time in seconds (default: 10):  \n -> "))
         main()
     elif choice == 5:
         do_movie()
     elif choice == 0:
         print "Ciao! :D"
     else:
-        print "Opzione non valida"
+        print "Invalid option!"
 
 
 main()
