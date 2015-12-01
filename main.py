@@ -77,6 +77,7 @@ def do_both():
     photoWidth, photoHeight = photo.size
     combinedImage = Image.new("RGB", (width + photoWidth, height), color=0)
     startTime = time.time()
+    print "Press enter to stop."
     while 1:
         time.sleep(waitTime)
         i = i + 1
